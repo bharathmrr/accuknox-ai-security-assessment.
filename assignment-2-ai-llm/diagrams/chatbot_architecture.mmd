@@ -1,0 +1,65 @@
+flowchart TB
+    %% Enterprise LLM chatbot - functional architecture
+    subgraph Client["Client tier"]
+        UI["Web / Mobile / Slack UI"]
+    end
+
+    subgraph Edge["Edge and API tier"]
+        GW["API Gateway<br/>TLS, WAF, rate limiting"]
+        AUTH["AuthN / AuthZ<br/>OIDC SSO, JWT, RBAC/ABAC"]
+        API["Chat Backend API<br/>FastAPI, async"]
+    end
+
+    subgraph Orchestration["LLM orchestration tier"]
+        INV["Input validation and<br/>input guardrails"]
+        PM["Prompt manager<br/>versioned templates"]
+        CTX["Context manager<br/>token budgeting"]
+        MEM["Conversation memory<br/>Redis short-term, DB long-term"]
+        AGENT["Agent / tool router<br/>function calling"]
+        OUTV["Output validation and<br/>output guardrails"]
+    end
+
+    subgraph Retrieval["Retrieval tier (RAG)"]
+        EMBQ["Embedding model<br/>query embedding"]
+        VDB[("Vector database<br/>Qdrant: dense + sparse")]
+        RR["Re-ranker<br/>cross-encoder"]
+    end
+
+    subgraph Ingestion["Offline ingestion pipeline"]
+        SRC["Sources<br/>SharePoint, Confluence, S3, tickets"]
+        PARSE["Parse and clean<br/>PDF, DOCX, HTML, OCR"]
+        CHUNK["Chunker<br/>structure-aware, overlap"]
+        EMBD["Embedding model<br/>batch"]
+    end
+
+    subgraph Models["Model tier"]
+        LLM["LLM inference engine<br/>vLLM self-hosted or provider API"]
+    end
+
+    subgraph Tools["Tools (least privilege)"]
+        T1["Ticketing API"]
+        T2["HR / CRM read API"]
+        T3["Search API"]
+    end
+
+    subgraph Observe["Monitoring and evaluation"]
+        OBS["Traces, metrics, logs<br/>OpenTelemetry"]
+        EVAL["Offline + online evals<br/>faithfulness, relevance"]
+    end
+
+    UI -->|"1. HTTPS request"| GW --> AUTH -->|"2. identity + roles"| API
+    API -->|"3. validate"| INV --> MEM
+    MEM -->|"4. history"| CTX
+    INV -->|"5. query"| EMBQ -->|"6. ANN + ACL filter"| VDB -->|"7. top-k"| RR -->|"8. ranked chunks"| CTX
+    CTX --> PM -->|"9. assembled prompt"| LLM
+    LLM <-->|"10. tool calls"| AGENT
+    AGENT --> T1 & T2 & T3
+    LLM -->|"11. draft answer"| OUTV -->|"12. validated answer + citations"| API --> UI
+    OUTV --> MEM
+
+    SRC --> PARSE --> CHUNK --> EMBD -->|"vectors + metadata + ACL"| VDB
+
+    API -.-> OBS
+    LLM -.-> OBS
+    AGENT -.-> OBS
+    OBS -.-> EVAL

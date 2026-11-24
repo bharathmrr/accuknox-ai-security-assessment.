@@ -1,0 +1,63 @@
+flowchart TB
+    %% Defence-in-depth controls around an LLM application
+    USER["User"]
+    ATTACKER["Attacker<br/>direct injection, abuse, DoS"]
+    POISON["Poisoned or malicious document<br/>indirect injection"]
+
+    subgraph Z1["Zone 1 - Perimeter"]
+        WAF["WAF + API gateway<br/>rate limit, quotas, size limits"]
+        IDP["SSO / MFA<br/>short-lived JWT"]
+    end
+
+    subgraph Z2["Zone 2 - Input controls"]
+        RBAC["RBAC / ABAC policy engine<br/>OPA, deny by default"]
+        IG["Input guardrails<br/>schema, length, encoding normalisation"]
+        PID["Prompt-injection and jailbreak classifier"]
+        PIIIN["PII detection and masking"]
+    end
+
+    subgraph Z3["Zone 3 - Retrieval controls"]
+        RAC["Retrieval access control<br/>tenant / group / clearance filters in the vector query"]
+        PROV["Provenance + trust labels<br/>source allow-list, content hashes"]
+        SAN["Ingestion scanning<br/>malware, hidden text, injection patterns"]
+    end
+
+    subgraph Z4["Zone 4 - Model and agent controls"]
+        SP["Hardened system prompt<br/>data/instruction separation, spotlighting"]
+        LLM["LLM"]
+        TOOLGW["Tool gateway<br/>allow-list, schema validation, scoped tokens"]
+        HITL["Human approval<br/>for sensitive or irreversible actions"]
+    end
+
+    subgraph Z5["Zone 5 - Output controls"]
+        OG["Output guardrails<br/>PII/secret redaction, policy, grounding check"]
+        ENC["Safe rendering<br/>HTML/Markdown encoding, link allow-list"]
+    end
+
+    subgraph Z6["Cross-cutting"]
+        VAULT["Secrets manager<br/>Vault / KMS, no keys in prompts"]
+        AUDIT["Immutable audit log<br/>prompts, retrievals, tool calls"]
+        SIEM["SIEM + anomaly detection<br/>alerts, kill switch"]
+        REDTEAM["Continuous red-teaming<br/>and evals"]
+    end
+
+    USER --> WAF
+    ATTACKER -. blocked or throttled .-> WAF
+    WAF --> IDP --> RBAC --> IG --> PID --> PIIIN --> SP
+    POISON -. scanned .-> SAN --> PROV --> RAC
+    RAC -->|"authorised chunks only, marked as untrusted data"| SP
+    SP --> LLM
+    LLM -->|"proposed tool call"| TOOLGW
+    TOOLGW -->|"high-risk action"| HITL
+    HITL -->|"approved"| TOOLGW
+    TOOLGW -->|"result treated as untrusted"| LLM
+    LLM --> OG --> ENC --> USER
+
+    TOOLGW -. fetches credentials .-> VAULT
+    RBAC -.-> AUDIT
+    RAC -.-> AUDIT
+    TOOLGW -.-> AUDIT
+    OG -.-> AUDIT
+    AUDIT --> SIEM
+    REDTEAM -.-> PID
+    REDTEAM -.-> OG
