@@ -1,0 +1,28 @@
+{
+  "_note": "REPRESENTATIVE sample, not a live capture. The structure follows the Open Library Search API documentation (https://openlibrary.org/dev/docs/api/search) with the 'fields' parameter set to key,title,author_name,first_publish_year. Work keys and numFound are placeholders; live values change over time. To capture a real response run: python api_to_sqlite.py fetch \"clean code\" --limit 3 --save-raw data/live_response.json",
+  "numFound": 3,
+  "start": 0,
+  "numFoundExact": true,
+  "docs": [
+    {
+      "key": "/works/OLEXAMPLE1W",
+      "title": "Clean Code",
+      "author_name": ["Robert C. Martin"],
+      "first_publish_year": 2008
+    },
+    {
+      "key": "/works/OLEXAMPLE2W",
+      "title": "The Clean Coder",
+      "author_name": ["Robert C. Martin"],
+      "first_publish_year": 2011
+    },
+    {
+      "key": "/works/OLEXAMPLE3W",
+      "title": "Clean Architecture",
+      "author_name": ["Robert C. Martin"],
+      "first_publish_year": 2017
+    }
+  ],
+  "q": "clean code",
+  "offset": null
+}
