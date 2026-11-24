@@ -1,0 +1,41 @@
+flowchart LR
+    %% Secure enterprise RAG on Qdrant - hypothetical scenario
+    subgraph Sources["Document sources"]
+        SP["SharePoint / OneDrive<br/>PDF, DOCX"]
+        CONF["Confluence<br/>technical manuals"]
+        TKT["Support system<br/>tickets, records"]
+    end
+
+    subgraph Ingest["Ingestion workers (Kafka/Celery queue)"]
+        CONN["Connectors<br/>delta sync + deletes"]
+        ACLX["ACL extractor<br/>groups, clearance, owner"]
+        SCAN["Security scan<br/>malware, injection, PII tagging"]
+        PARSE["Parser + OCR<br/>layout-aware"]
+        CHUNK["Chunker<br/>headings, 300-800 tokens, overlap"]
+        DENSE["Dense embedder<br/>e.g. bge / e5 / provider API"]
+        SPARSE["Sparse encoder<br/>BM25 / SPLADE"]
+    end
+
+    subgraph Qdrant["Qdrant cluster (private network, TLS, API keys / JWT RBAC)"]
+        COL[("Collection: enterprise_docs<br/>named vectors: dense + sparse<br/>payload: tenant_id, acl_groups,<br/>classification, doc_id, source, updated_at")]
+        PIDX["Payload indexes<br/>tenant_id is_tenant=true,<br/>acl_groups keyword, classification"]
+        SHARDS["Shards x replicas<br/>HNSW per segment"]
+    end
+
+    subgraph Query["Query path"]
+        USER["Employee via chatbot"]
+        AUTHZ["Auth service<br/>SSO token -> groups, clearance"]
+        RETR["Retriever service<br/>builds mandatory ACL filter"]
+        RERANK["Cross-encoder re-ranker"]
+        LLM["LLM with citations"]
+    end
+
+    SP & CONF & TKT --> CONN --> ACLX --> SCAN --> PARSE --> CHUNK
+    CHUNK --> DENSE & SPARSE
+    DENSE & SPARSE -->|"upsert points + payload"| COL
+    COL --- PIDX
+    COL --- SHARDS
+
+    USER --> AUTHZ -->|"verified claims"| RETR
+    RETR -->|"hybrid query: prefetch dense + sparse,<br/>RRF fusion, filter: acl_groups ANY user_groups<br/>AND classification <= clearance"| COL
+    COL -->|"authorised top-k"| RERANK --> LLM -->|"answer + source links"| USER
