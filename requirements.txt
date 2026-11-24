@@ -1,0 +1,5 @@
+# Runtime dependencies (Assignment 1)
+-r assignment-1-python/requirements.txt
+
+# Test dependencies
+pytest>=8.0,<10
