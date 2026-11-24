@@ -1,0 +1,17 @@
+{
+  "_comment": "Local mock API fixture. Synthetic data created for this assessment; not real students. Deliberately contains missing, out-of-range and non-numeric scores to exercise validation.",
+  "class": "CSE-AIML Section A",
+  "subjects": ["Mathematics", "Physics", "Programming", "Data Structures", "Machine Learning"],
+  "students": [
+    {"id": "S001", "name": "Aarav Sharma",   "scores": {"Mathematics": 88, "Physics": 76, "Programming": 92, "Data Structures": 85, "Machine Learning": 90}},
+    {"id": "S002", "name": "Diya Patel",     "scores": {"Mathematics": 95, "Physics": 89, "Programming": 97, "Data Structures": 93, "Machine Learning": 96}},
+    {"id": "S003", "name": "Rohan Verma",    "scores": {"Mathematics": 62, "Physics": null, "Programming": 70, "Data Structures": 58, "Machine Learning": 65}},
+    {"id": "S004", "name": "Ananya Iyer",    "scores": {"Mathematics": 78, "Physics": 82, "Programming": "absent", "Data Structures": 80, "Machine Learning": 84}},
+    {"id": "S005", "name": "Karthik Reddy",  "scores": {"Mathematics": 45, "Physics": 52, "Programming": 48, "Data Structures": 41, "Machine Learning": 50}},
+    {"id": "S006", "name": "Meera Nair",     "scores": {"Mathematics": 91, "Physics": 87, "Programming": 105, "Data Structures": 89, "Machine Learning": 92}},
+    {"id": "S007", "name": "Vikram Singh",   "scores": {"Mathematics": 73, "Physics": 69, "Programming": 81, "Data Structures": 77}},
+    {"id": "S008", "name": "Sneha Kulkarni", "scores": {"Mathematics": "84", "Physics": 79.5, "Programming": 88, "Data Structures": 86, "Machine Learning": 83}},
+    {"id": "S009", "name": "",               "scores": {"Mathematics": 70, "Physics": 70, "Programming": 70, "Data Structures": 70, "Machine Learning": 70}},
+    {"id": "S010", "name": "Farhan Qureshi", "scores": {"Mathematics": -5, "Physics": null, "Programming": null, "Data Structures": null, "Machine Learning": null}}
+  ]
+}
