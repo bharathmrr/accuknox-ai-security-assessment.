@@ -1,0 +1,15 @@
+id,name,email,phone
+1,Priya Menon,priya.menon@example.com,+91 98450 12345
+2,Arjun Rao,arjun.rao@example.org,9845012346
+3,Kavya Shetty,kavya.shetty@example.com,080-4123-4567
+4,Rahul Gupta,rahul.gupta@example,9845012348
+5,,no.name@example.com,9845012349
+6,Sana Khan,sana.khan@example.com,
+7,Nikhil Joshi,PRIYA.MENON@example.com,9845012351
+2,Arjun Rao Duplicate,arjun.dup@example.org,9845012352
+8,Lakshmi Pillai,lakshmi..pillai@example.com,9845012353
+9,Robert'); DROP TABLE users;--,bobby.tables@example.com,9845012354
+abc,Invalid Id,invalid.id@example.com,9845012355
+10,Deepak Hegde,deepak.hegde@example.co.in,12ab34
+11,Fatima Sheikh,fatima.sheikh@example.com,+91-98450-12357
+12,  Ishaan   Bose  ,  ishaan.bose@Example.COM  ,98450 12358
